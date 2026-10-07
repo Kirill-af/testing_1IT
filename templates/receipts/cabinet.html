@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}История чеков{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-head">
+    <h1>История чеков</h1>
+    <span class="count">Чеков внесено: {{ receipt_count }} шт.</span>
+  </div>
+  {% if page_obj.object_list %}
+  <div id="live" data-api="{% url 'receipts_api' %}">
+    <table>
+      <thead>
+        <tr>
+          <th>Дата покупки</th>
+          <th>Статус</th>
+          <th>Сумма чека</th>
+          <th>Дата регистрации</th>
+          <th>Информация</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for receipt in page_obj %}
+        <tr data-id="{{ receipt.id }}">
+          <td class="when">{{ receipt.purchased_at|date:"d.m.Y H:i" }}</td>
+          <td><span class="pill status-{{ receipt.status }}">
+            {% if receipt.status == "pending" %}В обработке{% elif receipt.status == "accepted" %}Обработан{% else %}Ошибка{% endif %}
+          </span></td>
+          <td>{{ receipt.amount }} ₽</td>
+          <td>{{ receipt.registered_at|date:"d.m.Y H:i" }}</td>
+          <td class="info">{% if receipt.rejection_reason %}{{ receipt.rejection_reason }}{% elif receipt.status == "pending" %}Чек в обработке{% elif receipt.status == "accepted" %}Чек принят{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pager">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">‹</a>{% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <span class="current">{{ num }}</span>
+      {% elif num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-1" and num <= page_obj.number|add:"1" %}
+        <a href="?page={{ num }}">{{ num }}</a>
+      {% elif num == 2 or num == page_obj.paginator.num_pages|add:"-1" %}
+        <span>…</span>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">›</a>{% endif %}
+  </nav>
+  {% endif %}
+  <div class="panel-foot">
+    <p class="note">Иногда проверка вашего чека может занять до 5 рабочих дней</p>
+    <a class="btn" href="{% url 'register' %}">Зарегистрировать чек</a>
+  </div>
+  {% else %}
+  <div class="empty">
+    <div class="sheet" aria-hidden="true">?</div>
+    <h2>Здесь будет история ваших чеков</h2>
+    <p>Вы не добавили еще ни одного чека</p>
+    <a class="btn" href="{% url 'register' %}">Зарегистрировать чек</a>
+  </div>
+  {% endif %}
+</section>
+{% if page_obj.object_list %}
+<script>
+  const root = document.getElementById("live");
+  async function refresh() {
+    const response = await fetch(root.dataset.api, { headers: { "Accept": "application/json" } });
+    if (!response.ok) return;
+    const data = await response.json();
+    const byId = Object.fromEntries(data.results.map((item) => [String(item.id), item]));
+    document.querySelectorAll("tr[data-id]").forEach((row) => {
+      const item = byId[row.dataset.id];
+      if (!item) return;
+      const pill = row.querySelector(".pill");
+      pill.textContent = item.status_label;
+      pill.className = "pill status-" + item.status;
+      row.querySelector(".info").textContent = item.rejection_reason || (item.status === "pending" ? "Чек в обработке" : "—");
+    });
+  }
+  setInterval(refresh, 8000);
+</script>
+{% endif %}
+{% endblock %}

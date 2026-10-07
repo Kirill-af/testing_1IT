@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Правила{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Правила акции</h1>
+  <p>Период: {{ promo_start|date:"d.m.Y" }} — {{ promo_end|date:"d.m.Y" }} включительно, часовой пояс Europe/Moscow.</p>
+  <p>К участию принимаются чеки от {{ min_amount }} ₽. Один фискальный документ (ФН + ФД + ФП) регистрируется один раз.</p>
+  <p>После отправки чек получает статус «В обработке». Модератор принимает его или отклоняет с указанием причины.</p>
+</section>
+{% endblock %}

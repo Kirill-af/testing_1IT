@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Профиль</h1>
+  <p><strong>{{ user.get_full_name|default:user.username }}</strong></p>
+  <p>{{ user.email|default:"Почта не указана" }}</p>
+  <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button class="btn" type="submit">Выйти</button>
+  </form>
+</section>
+{% endblock %}

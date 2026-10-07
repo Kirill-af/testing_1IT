@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Регистрация чека{% endblock %}
+{% block content %}
+<section class="modal" id="form-card">
+  <div class="modal-head">
+    <div>
+      <h1>Регистрация чека</h1>
+      <p>Введите необходимые данные с чека</p>
+    </div>
+    <a class="close" href="{% url 'cabinet' %}" aria-label="Закрыть">×</a>
+  </div>
+  <p class="period">Период акции: {{ promo_start|date:"d.m.Y" }} — {{ promo_end|date:"d.m.Y" }}</p>
+  <form id="receipt-form" novalidate>
+    {% csrf_token %}
+    <label>ФН
+      <input name="fn" inputmode="numeric" maxlength="16" placeholder="Введите ФН" required>
+      <span class="bubble" data-for="fn"></span>
+    </label>
+    <label>Номер чека
+      <input name="fd" inputmode="numeric" maxlength="10" placeholder="Введите номер чека (ФД)" required>
+      <span class="bubble" data-for="fd"></span>
+    </label>
+    <label>ФП
+      <input name="fp" inputmode="numeric" maxlength="10" placeholder="Введите ФП" required>
+      <span class="bubble" data-for="fp"></span>
+    </label>
+    <label>Дата покупки
+      <input name="purchased_at" type="datetime-local" required>
+      <span class="bubble" data-for="purchased_at"></span>
+    </label>
+    <label>Сумма
+      <input name="amount" inputmode="decimal" placeholder="0.00 ₽" required>
+      <span class="bubble" data-for="amount"></span>
+    </label>
+    <label class="qr">Строка из QR
+      <textarea name="qr" rows="2" placeholder="t=...&s=...&fn=...&i=...&fp=..."></textarea>
+    </label>
+    <p class="bubble show" data-for="__all__"></p>
+    <button type="submit">Загрузить</button>
+  </form>
+</section>
+<section class="modal success" id="success-card" hidden>
+  <div class="check">✓</div>
+  <h1>Ваш чек загружен</h1>
+  <p>Мы уже начали анализировать ваши покупки.<br>Это займет всего пару секунд.</p>
+  <a class="btn" href="{% url 'cabinet' %}">На главную</a>
+</section>
+<script src="{% static 'receipts.js' %}"></script>
+{% endblock %}

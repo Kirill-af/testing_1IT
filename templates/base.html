@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Чек на удачу{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'receipts.css' %}">
+</head>
+<body>
+  <header class="top">
+    <div class="top-left">
+      <span class="logo" aria-hidden="true"></span>
+      <a class="back" href="{% url 'register' %}">‹ На сайт</a>
+    </div>
+    <nav class="pills">
+      <a class="{% if request.resolver_match.url_name == 'cabinet' %}active{% endif %}" href="{% url 'cabinet' %}">Личный кабинет</a>
+      <a class="{% if request.resolver_match.url_name == 'rules' %}active{% endif %}" href="{% url 'rules' %}">Правила</a>
+      <a class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">Профиль</a>
+    </nav>
+    <div class="userbox">
+      {% if user.is_authenticated %}
+        <span class="avatar">{{ user.username|slice:":1"|upper }}</span>
+        <span>
+          <strong>{{ user.get_full_name|default:user.username }}</strong>
+          <small>{{ user.email|default:"—" }}</small>
+        </span>
+        <form class="logout-form" method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit">Выйти</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}">Войти</a>
+      {% endif %}
+    </div>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
